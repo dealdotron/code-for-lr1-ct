@@ -3,20 +3,24 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+
 bool readNumber(const std::string& text, double& value) {
     std::istringstream input(text);
     if (!(input >> value)) return false;
     input >> std::ws;
     return input.eof() && std::isfinite(value);
 }
+
 int main() {
     std::string rawX, rawEps;
+    
     std::cout << "Введите аргумент косинуса x в радианах:\n";
     std::getline(std::cin, rawX);
     std::cout << "Введите допустимую погрешность:\n";
     std::getline(std::cin, rawEps);
     std::cout << "Введённые данные: x = " << rawX
               << "; погрешность = " << rawEps << '\n';
+    
     double x, eps;
     if (!readNumber(rawX, x)) {
         std::cout << "Ошибка: аргумент должен быть конечным числом без лишних символов.\n";
@@ -35,12 +39,14 @@ int main() {
         std::cout << "Ошибка: cos(x) не удалось вычислить для этого аргумента.\n";
         return 1;
     }
+    
     double sum = 1.0;
     double term = 1.0;
     double difference = std::fabs(exact - sum);
     int n = 1;
     int count = 1;
     const int maxTerms = 10000;
+    
     while (difference > eps && count < maxTerms) {
         const double denominator = (2.0 * n - 1.0) * (2.0 * n);
         const double nextTerm = -term * x * x / denominator;
@@ -48,17 +54,20 @@ int main() {
             std::cout << "Ошибка: член ряда переполнен, вычисление невозможно.\n";
             return 1;
         }
+        
         const double nextSum = sum + nextTerm;
         if (!std::isfinite(nextSum)) {
             std::cout << "Ошибка: сумма ряда переполнена, вычисление невозможно.\n";
             return 1;
         }
+        
         term = nextTerm;
         sum = nextSum;
         ++count;
         ++n;
         difference = std::fabs(exact - sum);
     }
+    
     if (difference > eps) {
         std::cout << "Ошибка: заданная точность не достигнута за 10000 членов ряда.\n";
         return 1;
